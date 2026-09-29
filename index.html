@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#071523"><meta name="description" content="A quiet interactive evening at Finn and Jake's treehouse. Original 3D fan art."><meta property="og:title" content="A Quiet Evening in Ooo"><meta property="og:description" content="An interactive Three.js fan-art miniature. Visit Finn, Jake and BMO, and watch the light change."><meta property="og:type" content="website"><meta property="og:image" content="/social-preview.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="/social-preview.png"><title>A Quiet Evening in Ooo</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23071523'/%3E%3Cpath d='M29 51V25h7v26M32 9c-20 0-21 29-6 29h13C56 38 50 9 32 9' fill='%236b8a58'/%3E%3Cpath d='M25 28h13v16H25z' fill='%23eabc73'/%3E%3C/svg%3E"></head>
+<body>
+<svg class="icon-definitions" aria-hidden="true"><defs><symbol id="time-day" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4 19 5"/></symbol><symbol id="time-golden" viewBox="0 0 24 24"><path d="M3 17h18M6 17a6 6 0 0 1 12 0M12 3v3M3 9l2 2m16-2-2 2M8 21h8"/></symbol><symbol id="time-twilight" viewBox="0 0 24 24"><path d="M16 4a8 8 0 1 0 4 12A8 8 0 0 1 16 4Z"/></symbol><symbol id="time-night" viewBox="0 0 24 24"><path d="M13 5a7 7 0 1 0 5 12A8 8 0 0 1 13 5Z"/><path d="m19 2 .7 2.3L22 5l-2.3.7L19 8l-.7-2.3L16 5l2.3-.7ZM20 12v2m-1-1h2"/></symbol></defs></svg>
+<main id="world" aria-label="Interactive treehouse at twilight">
+<canvas id="scene" tabindex="0" aria-label="Treehouse miniature. Drag or use arrow keys to orbit. Scroll, pinch, plus or minus to zoom. Choose Explore to visit Finn, Jake or BMO. Home returns to the clearing."></canvas>
+<header class="title-mark"><p class="eyebrow">A LITTLE WORLD TO GET LOST IN</p><h1>A quiet evening</h1><p class="title-tail">in the land of <span>Ooo.</span></p><svg class="title-rule" viewBox="0 0 190 12" aria-hidden="true"><path pathLength="1" d="M2 7 Q45 1 98 6 T184 5 M146 3l8 6 9-8" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></header>
+<div id="loading" role="status"><span class="loading-dot"></span><span id="loading-text">Finding our way home…</span></div>
+<div id="error" hidden role="alert"><h2>The clearing couldn’t load</h2><p id="error-message"></p><button id="retry">Try again</button></div>
+<section id="welcome" role="dialog" aria-modal="true" hidden aria-labelledby="welcome-title">
+  <div class="welcome-card">
+    <p class="eyebrow">A QUIET EVENING IN OOO</p>
+    <h2 id="welcome-title">Come on in.</h2>
+    <p>A book on the porch. A line in the pond. Nowhere else to be.</p>
+    <div class="welcome-actions"><button id="enter-world" class="primary-action">Come on in <span aria-hidden="true">↗</span></button></div>
+    <button id="skip-arrival" class="text-action">Skip the arrival</button>
+  </div>
+</section>
+<nav id="utility-controls" aria-label="Experience controls">
+  <button id="places" aria-expanded="false" aria-controls="places-panel">Explore <span aria-hidden="true">↗</span></button>
+<button id="time-of-day" aria-label="Time of day: Twilight. Switch to Deep night" title="Twilight · next: Deep night"><svg class="time-icon" aria-hidden="true"><use id="hour-icon" href="#time-twilight"/></svg></button>
+<button id="music-toggle" aria-label="Play Easy Lemon music" aria-pressed="false" title="Play music"><svg class="time-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 18V5l11-2v13M9 8l11-2"/><ellipse cx="6" cy="18" rx="3" ry="2.5"/><ellipse cx="17" cy="16" rx="3" ry="2.5"/><path id="music-off-mark" d="m3 3 18 18"/></svg></button>
+</nav>
+<aside id="places-panel" class="paper-panel" hidden aria-label="Places to visit">
+  <p class="panel-kicker">A FEW FAMILIAR FACES</p>
+  <button class="place-choice" data-place="lookout"><span>Jake’s lookout</span><small>Up among the branches</small></button>
+  <button class="place-choice" data-place="pond"><span>BMO’s pond</span><small>A very patient fisherman</small></button>
+  <button class="place-choice" data-place="home-light"><span>Finn’s porch</span><small id="light-choice-state">Warm and on</small></button>
+  <a class="music-credit-link" href="/credits.html" target="_blank" rel="noopener">Music &amp; credits ↗</a>
+  <p id="evening-memory" hidden>An evening memory<br><small>The branches, the water, a light at home.</small></p>
+</aside>
+<div id="scene-targets" aria-label="Places to explore">
+<button class="place" id="lookout" aria-label="Visit the boat lookout"><span class="place-dot"></span><span class="place-label">Jake’s lookout</span></button>
+<button class="place" id="pond" aria-label="Visit BMO’s pond"><span class="place-dot"></span><span class="place-label">BMO’s pond</span></button>
+<button class="place" id="home-light" aria-label="Visit Finn by the porch lamp"><span class="place-dot"></span><span class="place-label">Finn’s porch</span></button>
+</div>
+<section id="place-card" hidden aria-live="polite">
+  <p class="panel-kicker" id="place-card-kicker">THE BOAT LOOKOUT</p><h2 id="place-card-title">A little higher.</h2>
+  <div class="caption-actions"><div class="place-card-actions"><button id="greet" hidden>Say hello to Finn</button><button id="telescope" aria-label="Look through the telescope">Telescope</button></div><button id="details-toggle" aria-expanded="false" aria-controls="place-details">Little details <span aria-hidden="true">+</span></button></div>
+  <div id="place-details" class="details-content" hidden><p id="place-card-copy">A quiet place to watch the clearing from the branches.</p><button id="porch-toggle" aria-pressed="true" hidden>Porch light on</button><button id="ripple-again" hidden>Send a ripple</button><button id="find-snail">Look for a tiny friend</button></div>
+</section>
+<button id="return-place" class="return-link" hidden><span aria-hidden="true">←</span> Back to clearing</button>
+<div id="telescope-lens" aria-hidden="true"><canvas id="vista" role="img" aria-label="The Candy Kingdom through the telescope"></canvas><span class="lens-ring"></span><span class="lens-crosshair lens-crosshair-x"></span><span class="lens-crosshair lens-crosshair-y"></span><span class="lens-caption">the Candy Kingdom</span></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<p id="announcement" class="sr-only" aria-live="polite"></p>
+<button id="demo-record" hidden>Record scene · 42s</button><button id="demo-play" hidden>Play 42-second demo</button>
+<pre id="diagnostics" hidden></pre>
+</main><script type="module" src="/src/main.ts"></script>
+</body></html>

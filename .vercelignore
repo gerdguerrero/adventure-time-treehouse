@@ -1,0 +1,12 @@
+node_modules
+.git
+art
+blender
+docs
+references
+renders
+scripts
+tests
+dist
+*.log
+*.blend*
