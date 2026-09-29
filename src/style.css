@@ -183,3 +183,10 @@ body.demo-playing #demo-record,body.capture #demo-record { visibility:hidden; }
 
 #utility-controls #music-toggle { width:44px; padding:10px; display:grid; place-items:center; }
 .music-credit-link { display:inline-block; margin-top:14px; color:inherit; font:12px/1.5 system-ui; text-underline-offset:4px; }
+
+/* The automatic arrival leaves the scene unobstructed; only Skip remains. */
+#welcome { background: none; pointer-events: none; }
+#welcome .welcome-card { width: auto; padding-bottom: 0; }
+#welcome .welcome-card > :not(#skip-arrival) { display: none; }
+#skip-arrival { pointer-events: auto; color: var(--paper); text-shadow: 0 1px 4px #071523; }
+body:has(#welcome:not([hidden])) .title-mark { visibility: hidden; }

@@ -286,8 +286,7 @@ loader.load('/models/treehouse-runtime.glb', async gltf => {
     canvas.focus({preventScroll:true});
     $('announcement').textContent = 'Welcome back. Choose a place to visit.';
   } else {
-    $('welcome').hidden=false;setWelcomeInert(true);
-    $('enter-world').focus({preventScroll:true});
+    startArrival();
     $('announcement').textContent = 'The treehouse is ready. Explore the lookout, pond, or porch light.';
   }
 
@@ -371,8 +370,34 @@ function updateLightState() {
 function toggleLight() {manualPorch=true;homeOn=!homeOn;discover('porch');updateLightState();announce(homeOn?'The porch light is on.':'The porch light is dimmed.');showToast(homeOn?'Porch light on':'Porch light dimmed');}
 $('home-light').onclick = visitFinn;$('porch-toggle').onclick=toggleLight;
 document.querySelectorAll<HTMLButtonElement>('.place-choice').forEach(button=>button.onclick=()=>{const place=button.dataset.place;if(place==='lookout')visitLookout();else if(place==='pond')visitPond();else visitFinn();});
-$('enter-world').onclick=()=>{ writeStorage('ooo-arrived','1'); $('welcome').hidden=true;setWelcomeInert(false); if(reduced.matches) inspectPlace('clearing',true); else navigation.transition(new THREE.Vector3(7.65,8.71,31.04),target,1.6,undefined,new THREE.Vector3(10,18,27)); canvas.focus({preventScroll:true});announce('Welcome home. Choose a place to visit.'); };
-$('skip-arrival').onclick=()=>{ writeStorage('ooo-arrived','1'); $('welcome').hidden=true;setWelcomeInert(false); inspectPlace('clearing',true); canvas.focus({preventScroll:true}); announce('Arrival skipped. Choose a place to visit.'); };
+let arrivalActive=false;
+function finishArrival(){
+ arrivalActive=false;navigation.cancelTransition();
+ writeStorage('ooo-arrived','1');$('welcome').hidden=true;setWelcomeInert(false);
+ inspectPlace('clearing',true);canvas.focus({preventScroll:true});
+ announce('Welcome home. Choose a place to visit.');
+}
+function startArrival(){
+ if(reduced.matches){finishArrival();return;}
+ arrivalActive=true;$('welcome').hidden=false;setWelcomeInert(true);
+ $('skip-arrival').focus({preventScroll:true});
+ // Wide approach, portrait-safe character views, then return along the open front of the tree.
+ const route:Array<{p:THREE.Vector3,t:THREE.Vector3,d:number,via?:THREE.Vector3}>=[];
+ const add=(p:THREE.Vector3,t:THREE.Vector3,d:number,via?:THREE.Vector3)=>route.push({p,t,d,via});
+ const clearing=subjectPose('clearing');
+ add(new THREE.Vector3(5.8,7.8,24),clearing.target,2.6);
+ for(const place of ['lookout','porch','pond'] as const){
+  const pose=subjectPose(place);
+  add(pose.position,pose.target,3.4,new THREE.Vector3(place==='lookout'?-5:2,place==='lookout'?11:6,13));
+  add(pose.position.clone().add(new THREE.Vector3(.35,.08,.3)),pose.target,1.8);
+ }
+ add(clearing.position,clearing.target,3.6,new THREE.Vector3(9,6,19));
+ const next=()=>{if(!arrivalActive)return;const shot=route.shift();if(!shot){finishArrival();return;}
+ navigation.transition(shot.p,shot.t,shot.d,next,shot.via??camera.position.clone().lerp(shot.p,.5));};
+ next();
+}
+$('skip-arrival').onclick=finishArrival;
+reduced.addEventListener('change',()=>{if(reduced.matches&&arrivalActive)finishArrival();});
 $('telescope').onclick=()=>{
   telescopeActive=true;
   document.body.classList.add('telescope-mode');
@@ -555,7 +580,7 @@ function updateEnvironment(alpha:number){
 }
 
 function setWelcomeInert(active:boolean){for(const child of $('world').children){if(child instanceof HTMLElement&&child.id!=='welcome'&&child.id!=='announcement')child.inert=active;}}
-$('welcome').addEventListener('keydown',e=>{if(e.key!=='Tab')return;const first=$('enter-world'),last=$('skip-arrival');if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}});
+$('welcome').addEventListener('keydown',e=>{if(e.key!=='Tab')return;const first=$('skip-arrival'),last=first;if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}});
 
 $('find-snail').onclick=()=>{snailFound=true;showToast('A tiny friend waves hello.');announce('You found the waving snail on Finn’s railing.');};
 // Explicit local review controls expose deterministic poses without a hidden automation API.
