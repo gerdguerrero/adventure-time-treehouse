@@ -1,12 +1,31 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#071523"><meta name="description" content="A quiet interactive evening at Finn and Jake's treehouse. Original 3D fan art."><meta property="og:title" content="A Quiet Evening in Ooo"><meta property="og:description" content="An interactive Three.js fan-art miniature. Visit Finn, Jake and BMO, and watch the light change."><meta property="og:type" content="website"><meta property="og:image" content="/social-preview.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="/social-preview.png"><title>A Quiet Evening in Ooo</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23071523'/%3E%3Cpath d='M29 51V25h7v26M32 9c-20 0-21 29-6 29h13C56 38 50 9 32 9' fill='%236b8a58'/%3E%3Cpath d='M25 28h13v16H25z' fill='%23eabc73'/%3E%3C/svg%3E"></head>
+<head>
+<meta charset="UTF-8">
+<!-- Paint the loading backdrop before any external stylesheet or script arrives. -->
+<style>html{background:#102326;color-scheme:dark}body{margin:0;background:#102326;color:#f0e7d2}</style>
+<link rel="stylesheet" href="/src/style.css">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#102326"><meta name="description" content="A quiet interactive evening at Finn and Jake's treehouse. Original 3D fan art."><meta property="og:title" content="A Quiet Evening in Ooo"><meta property="og:description" content="An interactive Three.js fan-art miniature. Visit Finn, Jake and BMO, and watch the light change."><meta property="og:type" content="website"><meta property="og:image" content="/social-preview.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="/social-preview.png"><title>A Quiet Evening in Ooo</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23071523'/%3E%3Cpath d='M29 51V25h7v26M32 9c-20 0-21 29-6 29h13C56 38 50 9 32 9' fill='%236b8a58'/%3E%3Cpath d='M25 28h13v16H25z' fill='%23eabc73'/%3E%3C/svg%3E"></head>
 <body>
 <svg class="icon-definitions" aria-hidden="true"><defs><symbol id="time-day" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4 19 5"/></symbol><symbol id="time-golden" viewBox="0 0 24 24"><path d="M3 17h18M6 17a6 6 0 0 1 12 0M12 3v3M3 9l2 2m16-2-2 2M8 21h8"/></symbol><symbol id="time-twilight" viewBox="0 0 24 24"><path d="M16 4a8 8 0 1 0 4 12A8 8 0 0 1 16 4Z"/></symbol><symbol id="time-night" viewBox="0 0 24 24"><path d="M13 5a7 7 0 1 0 5 12A8 8 0 0 1 13 5Z"/><path d="m19 2 .7 2.3L22 5l-2.3.7L19 8l-.7-2.3L16 5l2.3-.7ZM20 12v2m-1-1h2"/></symbol></defs></svg>
 <main id="world" aria-label="Interactive treehouse at twilight">
-<canvas id="scene" tabindex="0" aria-label="Treehouse miniature. Drag or use arrow keys to orbit. Scroll, pinch, plus or minus to zoom. Choose Explore to visit Finn, Jake or BMO. Home returns to the clearing."></canvas>
+<canvas id="scene" tabindex="0" aria-label="Treehouse miniature. Drag or use arrow keys to orbit. Scroll, pinch, plus or minus to zoom. Choose Explore to visit Finn, Jake, BMO or NEPTR. Home returns to the clearing."></canvas>
 <header class="title-mark"><p class="eyebrow">A LITTLE WORLD TO GET LOST IN</p><h1>A quiet evening</h1><p class="title-tail">in the land of <span>Ooo.</span></p><svg class="title-rule" viewBox="0 0 190 12" aria-hidden="true"><path pathLength="1" d="M2 7 Q45 1 98 6 T184 5 M146 3l8 6 9-8" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></header>
-<div id="loading" role="status"><span class="loading-dot"></span><span id="loading-text">Finding our way home…</span></div>
+<div id="loading" role="status" aria-live="polite">
+  <div class="loading-composition">
+    <p class="eyebrow">SOMEWHERE IN THE LAND OF OOO</p>
+    <svg class="loading-tree" viewBox="0 0 180 180" fill="none" aria-hidden="true">
+      <path class="loading-ground" d="M20 155Q85 146 160 155"/>
+      <path d="M81 149V67h18v82M81 120l-24-19V79M99 106l24-17V64"/>
+      <path class="loading-leaf" d="M64 84V54a19 19 0 0 0-38 0v30l10-5 8 8 10-8 10 5ZM113 70V39a20 20 0 0 1 40 0v31l-10-5-10 8-10-8-10 5ZM68 67V30a23 23 0 0 1 46 0v37l-11-7-12 9-11-9-12 7Z"/>
+      <path d="m61 147 29-25 31 25M70 140v15h42v-15M86 155v-15h10v15M103 91h24M105 91v13M123 91v-9M105 104h18"/>
+      <path class="loading-window" d="M84 33h13v18H84zM131 39h9v13h-9zM40 53h9v13h-9z"/>
+    </svg>
+    <h2>A little world awaits.</h2>
+    <p id="loading-text">Finding our way home…</p>
+    <span class="loading-line" aria-hidden="true"></span>
+  </div>
+</div>
 <div id="error" hidden role="alert"><h2>The clearing couldn’t load</h2><p id="error-message"></p><button id="retry">Try again</button></div>
 <section id="welcome" role="dialog" aria-modal="true" hidden aria-labelledby="welcome-title">
   <div class="welcome-card">
@@ -25,12 +44,14 @@
   <p class="panel-kicker">A FEW FAMILIAR FACES</p>
   <button class="place-choice" data-place="lookout"><span>Jake’s lookout</span><small>Up among the branches</small></button>
   <button class="place-choice" data-place="pond"><span>BMO’s pond</span><small>A very patient fisherman</small></button>
+  <button class="place-choice" data-place="neptr"><span>NEPTR’s pie shop</span><small>Another pie, coming right up</small></button>
   <button class="place-choice" data-place="home-light"><span>Finn’s porch</span><small id="light-choice-state">Warm and on</small></button>
   <a class="music-credit-link" href="/credits.html" target="_blank" rel="noopener">Music &amp; credits ↗</a>
   <p id="evening-memory" hidden>An evening memory<br><small>The branches, the water, a light at home.</small></p>
 </aside>
 <div id="scene-targets" aria-label="Places to explore">
 <button class="place" id="lookout" aria-label="Visit the boat lookout"><span class="place-dot"></span><span class="place-label">Jake’s lookout</span></button>
+<button class="place" id="neptr" aria-label="Visit NEPTR’s pie shop"><span class="place-dot"></span><span class="place-label">NEPTR’s pie shop</span></button>
 <button class="place" id="pond" aria-label="Visit BMO’s pond"><span class="place-dot"></span><span class="place-label">BMO’s pond</span></button>
 <button class="place" id="home-light" aria-label="Visit Finn by the porch lamp"><span class="place-dot"></span><span class="place-label">Finn’s porch</span></button>
 </div>

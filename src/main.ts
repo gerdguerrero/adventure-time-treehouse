@@ -1,3 +1,6 @@
+import {makeNeptrFace} from './neptr-face.ts';
+import {makePieWorkshop} from './neptr-workshop.ts';
+import {buildClearing} from './clearing-expansion.ts';
 import {setupMusic} from './music.ts';
 import * as THREE from 'three';
 import {gsap} from 'gsap';
@@ -7,7 +10,7 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { CameraGesture, type SceneView } from './camera-input.ts';
 import { FreeNavigation } from './free-navigation.ts';
 import { semanticNodeName } from './semantic-node.ts';
-import './style.css';
+
 import {parseMemory, readStorage, writeStorage, automaticPorch, type TimeOfDay, type Place} from './visit-memory.ts';
 import {presets, drawVista, vistaCopy, makeLife} from './living-world.ts';
 
@@ -21,7 +24,7 @@ import {makeDriftingLeaves} from './wind-leaves.ts';
 import {disclosurePanels} from './disclosure-panels.ts';
 import {startRenderer} from './renderer-start.ts';
 
-const candidate = 'jake-ear-2026-09-28-r11';
+const candidate = 'beyond-clearing-2026-09-30';
 const memory = parseMemory(readStorage('ooo-memory'));
 let timeOfDay: TimeOfDay = memory.time;
 let manualPorch = false;
@@ -67,7 +70,7 @@ let snailFound=false;
 const snail=makeSnail(scene);
 function subjectPose(place:Place|'clearing'){
  const portrait=innerWidth<650;
- const poses={clearing:[[7.65,8.71,31.04],[.15,4.25,0]],lookout:[[-4.18,9.85,2.85],[-3.2,portrait?8.88:9.05,-.70]],porch:[[-.10,4.75,4.8],[-.84,portrait?3.63:3.8,1.48]],pond:[[5.3,1.1,6.9],[3.55,portrait?-.28:-.10,3.75]]};
+ const poses={clearing:[[7.65,8.71,31.04],[.15,4.25,0]],lookout:[[-4.18,9.85,2.85],[-3.2,portrait?8.88:9.05,-.70]],porch:[[-.10,4.75,4.8],[-.84,portrait?3.63:3.8,1.48]],neptr:[[-1.8,1.25,7.1],[-2.65,.25,4.0]],pond:[[5.3,1.1,6.9],[3.55,portrait?-.28:-.10,3.75]]};
  const [p,t]=poses[place];return {position:new THREE.Vector3().fromArray(p),target:new THREE.Vector3().fromArray(t)};
 }
 function inspectPlace(place:Place|'clearing',immediate=false,finish?:()=>void){
@@ -160,6 +163,9 @@ const windowMaterials=new Map<THREE.MeshStandardMaterial,number>();
 let finn:THREE.Object3D|undefined,jake:THREE.Object3D|undefined;
 let fishing:ReturnType<typeof makeFishing>|undefined;
 let greetingUntil=0;
+let neptrFace:ReturnType<typeof makeNeptrFace>|undefined;
+let neptrHead:THREE.Object3D|undefined;
+let neptrWorkshop:ReturnType<typeof makePieWorkshop>|undefined;
 let jakeIdle:ReturnType<typeof makeJakeIdle>|undefined;
 let finnIdle:ReturnType<typeof makeFinnIdle>|undefined;
 const driftingLeaves=makeDriftingLeaves(scene);
@@ -251,6 +257,13 @@ loader.load('/models/treehouse-runtime.glb', async gltf => {
     }
   });
   scene.add(model);
+  const expansion=buildClearing(model);scene.add(expansion.root);
+  let neptrAsset;
+  try{neptrAsset=await loader.loadAsync('/models/neptr.glb');}catch{fail('Our new friend could not load. Check your connection and retry.');return;}
+  const neptr=neptrAsset.scene;neptr.name='NEPTR';neptr.scale.setScalar(.66);
+  neptr.position.set(-2.6,expansion.height(-2.6,3.7),3.7);neptr.rotation.y=-.4;
+  neptr.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=true;o.receiveShadow=true;}});
+  neptrFace=makeNeptrFace(neptr);neptrHead=neptr.getObjectByName('NEPTR_head');neptrWorkshop=makePieWorkshop(neptr);scene.add(neptr);
   try {
     const result=await cameoRequest;
     if(!result.value)throw result.error;
@@ -277,9 +290,19 @@ loader.load('/models/treehouse-runtime.glb', async gltf => {
   $('loading-text').textContent='Finding the light…';
   try{await renderer.compileAsync(scene,camera);}catch{fail('The scene could not be prepared. Try reloading the clearing.');return;}
   loadMs = performance.now() - loadStart;
+  // Let the illustrated loading screen breathe, without delaying slower loads further.
+  const loadingHold = Math.max(0, 2500 - loadMs);
+  if(loadingHold>0)await new Promise<void>(resolve=>window.setTimeout(resolve,loadingHold));
   ready = true;
+  renderer.render(scene,camera);
+  if(!reduced.matches)await $('loading').animate([{opacity:1},{opacity:0}],{duration:450,easing:'ease-out',fill:'forwards'}).finished;
   document.body.classList.add('loaded');
   $('loading').hidden=true;
+  if(new URLSearchParams(location.search).has('neptr-review')){
+    $('welcome').hidden=true;setWelcomeInert(false);
+    navigation.visit(new THREE.Vector3(-1.6,1.0,6.6),new THREE.Vector3(-2.6,.30,3.7));
+    return;
+  }
   if (returningVisitor) {
     $('welcome').hidden=true;setWelcomeInert(false);
     inspectPlace('clearing',true);
@@ -296,6 +319,7 @@ loader.load('/models/treehouse-runtime.glb', async gltf => {
 const points = [
   {id:'lookout', position:new THREE.Vector3(-3.8, 9.05, -.7)},
   {id:'pond', position:new THREE.Vector3(4.45, -.24, 4.6)},
+  {id:'neptr', position:new THREE.Vector3(-2.6,.25,4.25)},
   {id:'home-light', position:new THREE.Vector3(.34, 3.58, 1.6)}
 ];
 const projected = new THREE.Vector3();
@@ -326,12 +350,12 @@ function goTo(destination:Place|'clearing',immediate=false){
  const reducedMove=reduced.matches||immediate;
  const travel=()=>{
   if(serial!==routeSerial)return;travelPending=false;
-  mode=destination==='porch'?'clearing':destination;activePlace=destination;
+  mode=destination==='porch'||destination==='neptr'?'clearing':destination;activePlace=destination;
   document.body.dataset.place=destination;telescopeActive=false;document.body.classList.remove('telescope-mode');
   document.body.classList.add('familiar');setDetails(false);
   $('return-place').hidden=destination==='clearing';$('place-card').hidden=destination==='clearing';
   $('greet').hidden=destination==='clearing';$('porch-toggle').hidden=destination!=='porch';$('ripple-again').hidden=destination!=='pond';$('telescope').hidden=destination!=='lookout';
-  const copy={lookout:["JAKE’S LOOKOUT",'A good day for doing nothing.','A quiet seat above the branches.','Sit with Jake'],porch:['ON THE PORCH','One more chapter.','Finn is reading in the quiet. The bookmark can wait.','Say hello to Finn'],pond:["BMO’S POND",'A very patient fisherman.',pondCopy(),'Watch the bobber']};
+  const copy={neptr:["NEPTR’S PIE SHOP",'Another pie, coming right up.','A tiny baker with a never-ending supply.','Watch NEPTR bake'],lookout:["JAKE’S LOOKOUT",'A good day for doing nothing.','A quiet seat above the branches.','Sit with Jake'],porch:['ON THE PORCH','One more chapter.','Finn is reading in the quiet. The bookmark can wait.','Say hello to Finn'],pond:["BMO’S POND",'A very patient fisherman.',pondCopy(),'Watch the bobber']};
   if(destination!=='clearing'){
    const [kicker,title,detail,action]=copy[destination];
    $('place-card-kicker').textContent=kicker;$('place-card-title').textContent=title;$('place-card-copy').textContent=detail;$('greet').textContent=action;
@@ -341,7 +365,7 @@ function goTo(destination:Place|'clearing',immediate=false){
    if(serial!==routeSerial)return;
    settleCaption();
    if(destination!=='clearing')discover(destination);
-   announce(destination==='clearing'?'Back to the clearing.':destination==='porch'?'On the porch with Finn.':destination==='pond'?"By the pond with BMO.":"Up at Jake’s lookout.");
+   announce(destination==='clearing'?'Back to the clearing.':destination==='porch'?'On the porch with Finn.':destination==='pond'?"By the pond with BMO.":destination==='neptr'?"At NEPTR’s pie shop.":"Up at Jake’s lookout.");
   });
  };
  if(reducedMove||$('place-card').hidden)travel();
@@ -351,6 +375,7 @@ function reset(immediate=false) { goTo('clearing',immediate); }
 const visitLookout=()=>goTo('lookout');
 const visitPond=()=>goTo('pond');
 $('lookout').onclick = visitLookout;
+$('neptr').onclick=()=>goTo('neptr');
 const rings: {mesh:THREE.Mesh;born:number;delay:number}[] = [];
 function ripple() {
   if(rings.length>15)return;
@@ -369,7 +394,7 @@ function updateLightState() {
 }
 function toggleLight() {manualPorch=true;homeOn=!homeOn;discover('porch');updateLightState();announce(homeOn?'The porch light is on.':'The porch light is dimmed.');showToast(homeOn?'Porch light on':'Porch light dimmed');}
 $('home-light').onclick = visitFinn;$('porch-toggle').onclick=toggleLight;
-document.querySelectorAll<HTMLButtonElement>('.place-choice').forEach(button=>button.onclick=()=>{const place=button.dataset.place;if(place==='lookout')visitLookout();else if(place==='pond')visitPond();else visitFinn();});
+document.querySelectorAll<HTMLButtonElement>('.place-choice').forEach(button=>button.onclick=()=>{const place=button.dataset.place;if(place==='lookout')visitLookout();else if(place==='pond')visitPond();else if(place==='neptr')goTo('neptr');else visitFinn();});
 let arrivalActive=false;
 function finishArrival(){
  arrivalActive=false;navigation.cancelTransition();
@@ -464,6 +489,8 @@ function tick(){
   if(document.hidden)return;
   if(!paused)elapsed+=dt;
   navigation.update(dt);
+  neptrWorkshop?.update(elapsed,reduced.matches);neptrFace?.update(elapsed,reduced.matches);
+  if(neptrHead)neptrHead.rotation.y=.45;
   wind.value=elapsed;
   updateEnvironment(reduced.matches?1:1-Math.exp(-dt*2));
   life.update(elapsed,presets[timeOfDay].night);
@@ -525,7 +552,7 @@ function discover(place:Place){
  
 }
 function updateMemory(){
- $('evening-memory').hidden=memory.discovered.length!==3;
+ $('evening-memory').hidden=memory.discovered.length!==4;
  document.querySelectorAll<HTMLButtonElement>('.place-choice').forEach(b=>{const place=b.dataset.place==='home-light'?'porch':b.dataset.place;b.classList.toggle('discovered',memory.discovered.includes(place as Place));});
 }
 function visitFinn(){goTo('porch');}

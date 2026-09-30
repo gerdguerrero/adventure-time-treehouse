@@ -1,6 +1,6 @@
 export const times = ['day', 'golden', 'twilight', 'night'] as const;
 export type TimeOfDay = typeof times[number];
-export const places = ['lookout', 'pond', 'porch'] as const;
+export const places = ['lookout', 'pond', 'porch', 'neptr'] as const;
 export type Place = typeof places[number];
 export interface VisitMemory { time: TimeOfDay; discovered: Place[] }
 export function parseMemory(raw: string | null): VisitMemory {

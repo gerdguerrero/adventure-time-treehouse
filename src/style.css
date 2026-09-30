@@ -31,10 +31,10 @@ h1 { font-size: clamp(28px, 3.4vw, 46px); letter-spacing: -.045em; line-height: 
 .title-tail { margin-top: 5px; font-style: italic; font-size: 18px; }
 .title-tail span { font-size: 25px; }
 .title-rule { width: 145px; height: 12px; margin-top: 10px; opacity: .65; }
-body:is([data-place=porch],[data-place=lookout],[data-place=pond]) .title-mark h1 { font-size: 24px; }
-body:is([data-place=porch],[data-place=lookout],[data-place=pond]) .title-tail,
-body:is([data-place=porch],[data-place=lookout],[data-place=pond]) .title-rule { display: none; }
-body:is([data-place=porch],[data-place=lookout],[data-place=pond]) .title-mark .eyebrow { display: none; }
+body:is([data-place=porch],[data-place=lookout],[data-place=pond],[data-place=neptr]) .title-mark h1 { font-size: 24px; }
+body:is([data-place=porch],[data-place=lookout],[data-place=pond],[data-place=neptr]) .title-tail,
+body:is([data-place=porch],[data-place=lookout],[data-place=pond],[data-place=neptr]) .title-rule { display: none; }
+body:is([data-place=porch],[data-place=lookout],[data-place=pond],[data-place=neptr]) .title-mark .eyebrow { display: none; }
 #utility-controls { position: absolute; top: var(--edge); right: var(--edge); z-index: 12; display: flex; gap: 28px; color: var(--paper); text-shadow: 0 1px 8px #061820; }
 #utility-controls button { padding: 0 2px; font: 14px/1.3 system-ui, sans-serif; }
 #utility-controls button span { margin-left: 7px; font-size: 15px; }
@@ -117,8 +117,8 @@ body.telescope-mode #scene-targets { visibility: hidden; }
   #place-card h2 { font-size: 24px; }
   .place-card-actions button { font-size: 14px; }
   #details-toggle { font-size: 10px; }
-  body:is([data-place=porch],[data-place=lookout],[data-place=pond]) .title-mark { top: 72px; }
-  body:is([data-place=porch],[data-place=lookout],[data-place=pond]) .title-mark h1 { font-size: 18px; max-width: 210px; }
+  body:is([data-place=porch],[data-place=lookout],[data-place=pond],[data-place=neptr]) .title-mark { top: 72px; }
+  body:is([data-place=porch],[data-place=lookout],[data-place=pond],[data-place=neptr]) .title-mark h1 { font-size: 18px; max-width: 210px; }
   .return-link { top: 99px; font-size: 11px; }
   #toast { bottom: auto; top: 148px; right: 20px; max-width: calc(100vw - 40px); font-size: 11px; }
   #welcome { padding: 20px; background: linear-gradient(0deg,#081d29f0,transparent 70%); }
@@ -190,3 +190,19 @@ body.demo-playing #demo-record,body.capture #demo-record { visibility:hidden; }
 #welcome .welcome-card > :not(#skip-arrival) { display: none; }
 #skip-arrival { pointer-events: auto; color: var(--paper); text-shadow: 0 1px 4px #071523; }
 body:has(#welcome:not([hidden])) .title-mark { visibility: hidden; }
+
+/* A complete first paint while models and shaders prepare. */
+body:not(.loaded) .title-mark { visibility:hidden; }
+#loading { position:absolute; inset:0; z-index:40; transform:none; display:grid; place-items:center; padding:32px; background:radial-gradient(ellipse at 50% 40%,#29443c 0%,#142d2c 55%,#102326 100%); color:var(--paper); text-align:center; font:14px/1.5 system-ui,sans-serif; }
+.loading-composition { width:min(100%,420px); }
+#loading .eyebrow { font-size:10px; letter-spacing:.22em; opacity:.7; }
+.loading-tree { display:block; width:180px; height:180px; margin:28px auto 20px; stroke:#c5cba7; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+.loading-leaf { fill:#a8b78112; }
+.loading-window { fill:#e8c984; stroke:#e8c984; animation:window-glow 3s ease-in-out infinite; }
+#loading h2 { font:normal clamp(30px,5vw,42px)/1.15 Georgia,serif; letter-spacing:-.035em; }
+#loading-text { margin-top:18px; font-size:12px; color:#c2cbbd; min-height:18px; }
+.loading-line { display:block; width:100px; height:1px; background:#c5cba733; margin:24px auto 0; overflow:hidden; }
+.loading-line::after { content:''; display:block; width:35%; height:100%; background:#e8c984; animation:loading-travel 2s ease-in-out infinite; }
+@keyframes loading-travel { from {transform:translateX(-110%);} to {transform:translateX(390%);} }
+@keyframes window-glow { 50% {opacity:.45;} }
+@media(prefers-reduced-motion:reduce) { .loading-window,.loading-line::after {animation:none;} }
